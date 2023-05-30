@@ -27,30 +27,37 @@ app.get("/", (req, res) => {
   res.send("Hello Technigo!");
 });
 
+const countryList = require('country-list');
+
+
 const UserSchema = new mongoose.Schema ({
   username: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    minlength: 2,
+    maxlength: 20
   },
   password: {
     type: String,
     required: true,
+    minlength: 6
   },
   firstName: {
     type: String,
-    
+    minlength: 2,
+    maxlength: 20
   },
   lastName: {
     type: String,
     minlength: 2,
-
+    maxlength: 20
   },
-  emailAddress: {
-    type: String,
-    unique: true,
-    match: [/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/, 'Please enter a valid email address']
-  },
+  // emailAddress: {
+  //   type: String,
+  //    unique: true,
+  //   match: [/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/, 'Please enter a valid email address']
+  // },
   memberSince: {
     type: Date,
     default: () => new Date()
@@ -61,14 +68,17 @@ const UserSchema = new mongoose.Schema ({
     default: 'prefer not to say'
   },
   birthday: {
-    type: Date
+    type: Date,
+    default: ''
   },
   interests: {
-    type: String
+    type: String,
+    default: ''
   },
   currentCity: {
     type: String,
-    enum: ['Stockholm', 'London']
+    enum: ['Stockholm', 'London'],
+    default: ''
   },
   homeCountry: {
     type: String,
@@ -122,7 +132,7 @@ app.post("/register", async (req, res) => {
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
   try {
-    const user = await User.findOne({username: username})
+    const user = await User.findOne({ username: username })
     if (user && bcrypt.compareSync(password, user.password)) {
       res.status(200).json({
         success: true,
@@ -146,6 +156,55 @@ app.post("/login", async (req, res) => {
     })
   }
 });
+
+app.get("/users/:username", async (req, res) => {
+  const { username } = req.params;
+  try {
+    const user = await User.findOne({ username });
+
+    if (user) {
+      res.status(200).json({ 
+        success: true, 
+        response: user,
+        message: "User found" });
+    } else {
+      res.status(400).json({ 
+        success: false, 
+        response: null, 
+        message: "No user found" });
+    }
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      response: null, 
+      message: "Error retrieving user" });
+  }
+});
+
+
+
+app.get("/users", async (req, res) => {
+  try {
+    const users = await User.find({});
+    if (users.length > 0) {
+      res.status(200).json({ 
+        success: true, 
+        response: users, 
+        message: "Users found" });
+    } else {
+      res.status(400).json({ 
+        success: false, 
+        response: null, 
+        message: "No users found" });
+    }
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      response: null, 
+      message: "Error retrieving users" });
+  }
+});
+
 
 // Start the server
 app.listen(port, () => {
