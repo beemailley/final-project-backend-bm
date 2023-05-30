@@ -77,7 +77,7 @@ const UserSchema = new mongoose.Schema ({
   },
   currentCity: {
     type: String,
-    enum: ['Stockholm', 'London'],
+    enum: ['Stockholm', 'London', ''],
     default: ''
   },
   homeCountry: {
@@ -181,8 +181,6 @@ app.get("/users/:username", async (req, res) => {
   }
 });
 
-
-
 app.get("/users", async (req, res) => {
   try {
     const users = await User.find({});
@@ -205,6 +203,63 @@ app.get("/users", async (req, res) => {
   }
 });
 
+const authenticateUser = async (req, res, next) => {
+  
+  const accessToken = req.header("Authorization");
+  try {
+    const user = await User.findOne({accessToken: accessToken})
+    if (user) {
+      next();
+    } else {
+      res.status(401).json({
+        success: false,
+        response: "Please log in"
+      })
+    }
+  } catch (e) {
+    res.status(500).json({
+      success: false,
+      response: e
+    });
+  }
+}
+
+app.patch("/users/:username", authenticateUser);
+app.patch("/users/:username", async (req, res) => {
+  const { username } = req.params;
+try {
+  const user = await User.findOne({ username });
+  if (user) {
+    user.firstName = req.body.firstName || user.firstName;
+    user.lastName = req.body.lastName || user.lastName;
+    user.gender = req.body.gender || user.gender;
+    user.birthday = req.body.birthday || user.birthday;
+    user.interests = req.body.interests || user.interests;
+    user.currentCity = req.body.currentCity || user.currentCity;
+    user.homeCountry = req.body.homeCountry || user.homeCountry;
+    user.languages = req.body.languages || user.languages;
+    
+    const updatedUser = await user.save();
+    res.status(200).json({
+      success: true,
+      response: updatedUser,
+      message: `Username ${updatedUser.username} updated profile successfully.`
+    })
+  } else {
+    res.status(400).json({
+      success: false,
+      message: "User not found"
+    })
+  }
+} catch (error) {
+  console.log(error)
+  res.status(500).json({
+    success: false,
+    response: null,
+    message: "Error occurred"
+  })
+}
+})
 
 // Start the server
 app.listen(port, () => {
