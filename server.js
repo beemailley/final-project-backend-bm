@@ -53,11 +53,12 @@ const UserSchema = new mongoose.Schema ({
     minlength: 2,
     maxlength: 20
   },
-  // emailAddress: {
-  //   type: String,
-  //    unique: true,
-  //   match: [/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/, 'Please enter a valid email address']
-  // },
+  emailAddress: {
+    type: String,
+     unique: true,
+     match: [/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/, 'Please enter a valid email address'],
+    default: null
+    },
   memberSince: {
     type: Date,
     default: () => new Date()
@@ -103,13 +104,13 @@ app.post("/register", async (req, res) => {
     if (user) {
       res.status(400).json({
         success: false,
-        response: "Username already exists,"
+        response: "Username already exists."
       })
     } else {
       const salt = bcrypt.genSaltSync();
       const newUser = await new User({
         username: username,
-        password: bcrypt.hashSync(password, salt)
+        password: bcrypt.hashSync(password, salt),
       }).save();
       res.status(201).json({
         success: true,
@@ -223,9 +224,8 @@ const authenticateUser = async (req, res, next) => {
     });
   }
 }
-
-app.patch("/users/:username", authenticateUser);
-app.patch("/users/:username", async (req, res) => {
+// 
+app.patch("/users/:username", authenticateUser, async (req, res) => {
   const { username } = req.params;
 try {
   const user = await User.findOne({ username });
