@@ -450,6 +450,7 @@ app.patch('/events/:eventId', async (req, res) => {
 
 //delete a single event
 // user must be authenticated AND only the user who created an event can delete it
+app.delete('/events/:eventId', authenticateUser)
 app.delete('/events/:eventId', async (req, res) => {
   const { eventId } = req.params
   const accessToken = req.header("Authorization");
@@ -478,6 +479,7 @@ app.delete('/events/:eventId', async (req, res) => {
 
 //add attendees to an event
 //only authorized users may add themselves as an attendee to an event
+app.post('/events/:eventId/attendees', authenticateUser)
 app.post('/events/:eventId/attendees', async (req, res) => {
   const { eventId } = req.params
   const accessToken = req.header("Authorization");
@@ -518,6 +520,7 @@ app.post('/events/:eventId/attendees', async (req, res) => {
 
 //delete an attendee from an event
 //user must be authenticated AND only the attendee can remove themselves from the event
+app.delete('/events/:eventId/attendees/:attendeeUserId', authenticateUser)
 app.delete('/events/:eventId/attendees/:attendeeUserId', async (req, res) => {
   const { eventId, attendeeUserId } = req.params;
   const accessToken = req.header("Authorization");
