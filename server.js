@@ -158,30 +158,6 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/users/:username", async (req, res) => {
-  const { username } = req.params;
-  try {
-    const user = await User.findOne({ username });
-
-    if (user) {
-      res.status(200).json({ 
-        success: true, 
-        response: user,
-        message: "User found" });
-    } else {
-      res.status(400).json({ 
-        success: false, 
-        response: null, 
-        message: "No user found" });
-    }
-  } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      response: null, 
-      message: "Error retrieving user" });
-  }
-});
-
 app.get("/users", async (req, res) => {
   try {
     const users = await User.find({});
@@ -224,8 +200,43 @@ const authenticateUser = async (req, res, next) => {
     });
   }
 }
-// 
-app.patch("/users/:username", authenticateUser, async (req, res) => {
+
+app.get("/users/:username", authenticateUser);
+app.get("/users/:username", async (req, res) => {
+  const { username } = req.params;
+  try {
+    const user = await User.findOne({ username });
+
+    if (user) {
+      user.firstName = req.body.firstName || user.firstName;
+      user.lastName = req.body.lastName || user.lastName;
+      user.gender = req.body.gender || user.gender;
+      user.birthday = req.body.birthday || user.birthday;
+      user.interests = req.body.interests || user.interests;
+      user.currentCity = req.body.currentCity || user.currentCity;
+      user.homeCountry = req.body.homeCountry || user.homeCountry;
+      user.languages = req.body.languages || user.languages;
+      
+      res.status(200).json({ 
+        success: true, 
+        response: user,
+        message: "User found" });
+    } else {
+      res.status(400).json({ 
+        success: false, 
+        response: null, 
+        message: "No user found" });
+    }
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      response: null, 
+      message: "Error retrieving user" });
+  }
+});
+
+app.patch("/users/:username/udpate", authenticateUser);
+app.patch("/users/:username/update", async (req, res) => {
   const { username } = req.params;
 try {
   const user = await User.findOne({ username });
