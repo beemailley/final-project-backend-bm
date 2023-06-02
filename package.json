@@ -17,6 +17,7 @@
     "country-list": "^2.3.0",
     "crypto": "^1.0.1",
     "express": "^4.17.3",
+    "express-list-endpoints": "^6.0.0",
     "mongoose": "^7.2.1",
     "nodemon": "^2.0.15"
   }
