@@ -57,7 +57,7 @@ const UserSchema = new mongoose.Schema ({
     type: String,
      unique: true,
      match: [/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/, 'Please enter a valid email address'],
-    default: null
+    default: ''
     },
   memberSince: {
     type: Date,
