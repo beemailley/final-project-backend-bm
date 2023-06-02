@@ -189,16 +189,16 @@ app.get("/users", async (req, res) => {
       res.status(200).json({ 
         success: true, 
         response: {
-          username: user.username,
-          firstName: user.firstName,
-          lastName: user.lastName, 
-          memberSince: user.memberSince,
-          gender: user.gender,
-          //birthday: user.birthday,
-          interests: user.interests,
-          currentCity: user.currentCity,
-          homeCountry: user.homeCountry,
-          languages: user.languages,
+          username: users.username,
+          firstName: users.firstName,
+          lastName: users.lastName, 
+          memberSince: users.memberSince,
+          gender: users.gender,
+          //birthday: users.birthday,
+          interests: users.interests,
+          currentCity: users.currentCity,
+          homeCountry: users.homeCountry,
+          languages: users.languages,
         }, 
         // shouldn't return password or other sensitive data
         message: "Users found" });
