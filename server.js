@@ -243,7 +243,7 @@ app.get("/users/:username", async (req, res) => {
         //   homeCountry: user.homeCountry,
         //   languages: user.languages,
         // }
-        , 
+        ,
         // shouldn't return password or other sensitive data
         message: "User found" });
     } else {
@@ -263,8 +263,8 @@ app.get("/users/:username", async (req, res) => {
 
 //update a single user profile
 //user must be authenticated AND can only edit their own profile
-app.patch("/users/:username", authenticateUser);
-app.patch("/users/:username", async (req, res) => {
+app.patch("/users/:username/update", authenticateUser);
+app.patch("/users/:username/update", async (req, res) => {
   const { username } = req.params;
   const accessToken = req.header("Authorization");
   const authorizedUser = await User.findOne({accessToken: accessToken});
@@ -273,6 +273,7 @@ try {
   if (user.username === authorizedUser.username) {
     user.firstName = req.body.firstName || user.firstName;
     user.lastName = req.body.lastName || user.lastName;
+    user.emailAddress = req.body.emailAddress || user.emailAddress;
     user.gender = req.body.gender || user.gender;
     user.birthday = req.body.birthday || user.birthday;
     user.interests = req.body.interests || user.interests;
@@ -284,18 +285,18 @@ try {
     res.status(200).json({
       success: true,
       response: updatedUser,
-      // response: {
-      //   username: user.username,
-      //   firstName: user.firstName,
-      //   lastName: user.lastName, 
-      //   memberSince: user.memberSince,
-      //   gender: user.gender,
-      //   //birthday: user.birthday,
-      //   interests: user.interests,
-      //   currentCity: user.currentCity,
-      //   homeCountry: user.homeCountry,
-      //   languages: user.languages,
-      // }, 
+      response: {
+        // username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName, 
+        emailAddres: user.emailAddress,
+        gender: user.gender,
+        birthday: user.birthday,
+        interests: user.interests,
+        currentCity: user.currentCity,
+        homeCountry: user.homeCountry,
+        languages: user.languages,
+      }, 
       // shouldn't return password or other sensitive data
       message: `Username ${updatedUser.username} updated profile successfully.`
     })
