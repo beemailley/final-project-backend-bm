@@ -143,20 +143,20 @@ app.post("/login", async (req, res) => {
           username: user.username,
           id: user._id,
           accessToken: user.accessToken
-    }
+        }
   });
   } else {
       res.status(400).json({
         success: false,
         response: "Credentials do not match"
-    });
+      });
   } 
 } catch (e) {
       console.log(e)
-        res.status(400).json({
-        success: false,
-        response: e
-    })
+      res.status(400).json({
+      success: false,
+      response: e
+      })
   }
 });
 
@@ -185,25 +185,11 @@ const authenticateUser = async (req, res, next) => {
 app.get("/users", authenticateUser)
 app.get("/users", async (req, res) => {
   try {
-    const users = await User.find({});
+    const users = await User.find({}, 'username firstName lastName memberSince gender birthday interests currentCity homeCountry languages');
     if (users.length > 0) {
       res.status(200).json({ 
         success: true, 
-        response: users
-        // {
-        //   username: users.username,
-        //   firstName: users.firstName,
-        //   lastName: users.lastName, 
-        //   memberSince: users.memberSince,
-        //   gender: users.gender,
-        //   //birthday: users.birthday,
-        //   interests: users.interests,
-        //   currentCity: users.currentCity,
-        //   homeCountry: users.homeCountry,
-        //   languages: users.languages,
-        // }
-        , 
-        // shouldn't return password or other sensitive data
+        response: users, 
         message: "Users found" });
     } else {
       res.status(400).json({ 
@@ -225,26 +211,12 @@ app.get("/users/:username", authenticateUser);
 app.get("/users/:username", async (req, res) => {
   const { username } = req.params;
   try {
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ username }, 'username firstName lastName memberSince gender birthday interests currentCity homeCountry languages');
 
     if (user) {
       res.status(200).json({ 
         success: true, 
-        response: user
-        // {
-        //   username: user.username,
-        //   firstName: user.firstName,
-        //   lastName: user.lastName, 
-        //   memberSince: user.memberSince,
-        //   gender: user.gender,
-        //   //birthday: user.birthday,
-        //   interests: user.interests,
-        //   currentCity: user.currentCity,
-        //   homeCountry: user.homeCountry,
-        //   languages: user.languages,
-        // }
-        , 
-        // shouldn't return password or other sensitive data
+        response: user, 
         message: "User found" });
     } else {
       res.status(400).json({ 
@@ -283,20 +255,18 @@ try {
     const updatedUser = await user.save();
     res.status(200).json({
       success: true,
-      response: updatedUser,
-      // response: {
-      //   username: user.username,
-      //   firstName: user.firstName,
-      //   lastName: user.lastName, 
-      //   memberSince: user.memberSince,
-      //   gender: user.gender,
-      //   //birthday: user.birthday,
-      //   interests: user.interests,
-      //   currentCity: user.currentCity,
-      //   homeCountry: user.homeCountry,
-      //   languages: user.languages,
-      // }, 
-      // shouldn't return password or other sensitive data
+      response: {
+        username: updatedUser.username,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName, 
+        memberSince: updatedUser.memberSince,
+        gender: updatedUser.gender,
+        birthday: updatedUser.birthday,
+        interests: updatedUser.interests,
+        currentCity: updatedUser.currentCity,
+        homeCountry: updatedUser.homeCountry,
+        languages: updatedUser.languages,
+      }, 
       message: `Username ${updatedUser.username} updated profile successfully.`
     })
   } else {
