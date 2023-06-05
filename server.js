@@ -185,7 +185,7 @@ const authenticateUser = async (req, res, next) => {
 app.get("/users", authenticateUser)
 app.get("/users", async (req, res) => {
   try {
-    const users = await User.find({}, 'username firstName lastName memberSince gender birthday interests currentCity homeCountry languages');
+    const users = await User.find({}, 'username firstName lastName emailAddress memberSince gender birthday interests currentCity homeCountry languages');
     if (users.length > 0) {
       res.status(200).json({ 
         success: true, 
@@ -211,7 +211,7 @@ app.get("/users/:username", authenticateUser);
 app.get("/users/:username", async (req, res) => {
   const { username } = req.params;
   try {
-    const user = await User.findOne({ username }, 'username firstName lastName memberSince gender birthday interests currentCity homeCountry languages');
+    const user = await User.findOne({ username }, 'username firstName lastName emailAddress memberSince gender birthday interests currentCity homeCountry languages');
 
     if (user) {
       res.status(200).json({ 
@@ -235,8 +235,8 @@ app.get("/users/:username", async (req, res) => {
 
 //update a single user profile
 //user must be authenticated AND can only edit their own profile
-app.patch("/users/:username", authenticateUser);
-app.patch("/users/:username", async (req, res) => {
+app.patch("/users/:username/update", authenticateUser);
+app.patch("/users/:username/update", async (req, res) => {
   const { username } = req.params;
   const accessToken = req.header("Authorization");
   const authorizedUser = await User.findOne({accessToken: accessToken});
@@ -245,6 +245,7 @@ try {
   if (user.username === authorizedUser.username) {
     user.firstName = req.body.firstName || user.firstName;
     user.lastName = req.body.lastName || user.lastName;
+    user.emailAddress = req.body.emailAddress || user.emailAddress;
     user.gender = req.body.gender || user.gender;
     user.birthday = req.body.birthday || user.birthday;
     user.interests = req.body.interests || user.interests;
@@ -259,6 +260,7 @@ try {
         username: updatedUser.username,
         firstName: updatedUser.firstName,
         lastName: updatedUser.lastName, 
+        emailAddress: updatedUser.emailAddress,
         memberSince: updatedUser.memberSince,
         gender: updatedUser.gender,
         birthday: updatedUser.birthday,
