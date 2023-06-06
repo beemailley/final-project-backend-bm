@@ -36,7 +36,7 @@ const UserSchema = new mongoose.Schema ({
     type: String,
     required: true,
     unique: true,
-    minlength: 2,
+    minlength: 3,
     maxlength: 20
   },
   password: {
@@ -75,8 +75,8 @@ const UserSchema = new mongoose.Schema ({
   },
   interests: {
     type: String,
-    enum: ["Category 1", "Category 2", "Category 3", "Category 4", "Category 5"],
-    default: "Category 1"
+    enum: ["Category One", "Category Two", "Category Three", "Category Four", "Category Five"],
+    default: "Category One"
     // need to match the list to eventCategory in the Event Schema
     // need to create interests/categories list
   },
@@ -334,8 +334,8 @@ const EventSchema = new mongoose.Schema ({
   },
   eventCategory: {
     type: String,
-    enum: ["Category 1", "Category 2", "Category 3", "Category 4", "Category 5"],
-    default: "Category 1"
+    enum: ["Category One", "Category Two", "Category Three", "Category Four", "Category Five"],
+    default: "Category One"
     // need to come from a specific list that matches the user schema
     // need to create interests/categories list
   },
