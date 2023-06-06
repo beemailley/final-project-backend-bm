@@ -372,7 +372,7 @@ app.post('/events', async (req, res) => {
     response: event
    })
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       success: false,
       response: {message: error}
     })
@@ -397,9 +397,36 @@ app.get('/events', async (req, res) => {
       })
     }
   } catch (error) {
-    response.success = false
-    response.body={message: error}
-    res.status(500).json(response)
+    res.status(500).json({
+      success: false,
+      response: {message: error}
+    })
+  }
+})
+
+//get a single events
+//only authenticated users can request a list of all events.
+app.get('/events/:eventId', authenticateUser)
+app.get('/events/:eventId', async (req, res) => {
+  const { eventId } = req.params
+  try {
+    const singleEvent = await Event.findById(eventId);
+    if(singleEvent){
+      res.status(200).json({
+        success: true,
+        response: singleEvent
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        response: {message: error}
+      })
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      response: {message: error}
+    })
   }
 })
 
