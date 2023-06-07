@@ -56,10 +56,10 @@ const UserSchema = new mongoose.Schema ({
   },
   emailAddress: {
     type: String,
-    //  unique: true,
+     unique: true,
      match: [/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/, 'Please enter a valid email address'],
-    // default: '',
-    sparse: true
+    sparse: true, // allows it to have missing or null values
+    index: true
     },
   memberSince: {
     type: Date,
@@ -305,6 +305,30 @@ try {
   })
 }
 })
+
+
+// checking email address doesn't already exist 
+app.post('/check-email-availability', async (req, res) => {
+  const { emailAddress } = req.body;
+
+  try {
+    // Check if the email exists in the MongoDB collection
+    const user = await User.findOne({ emailAddress: emailAddress }).exec();
+
+    // Send the response indicating email availability
+    if (user) {
+      return res.json({ available: false }); // Email exists in the database
+    } else {
+      return res.json({ available: true }); // Email is available
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'An error occurred while checking email availability' });
+  }
+});
+
+
+
 
 const AttendeeSchema = new mongoose.Schema ({ 
   attendeeName: {
