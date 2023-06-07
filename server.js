@@ -56,9 +56,10 @@ const UserSchema = new mongoose.Schema ({
   },
   emailAddress: {
     type: String,
-     unique: true,
+    //  unique: true,
      match: [/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/, 'Please enter a valid email address'],
-    default: ''
+    // default: '',
+    sparse: true
     },
   memberSince: {
     type: Date,
@@ -66,8 +67,8 @@ const UserSchema = new mongoose.Schema ({
   },
   gender: {
     type: String,
-    enum: ['male', 'female', 'non-binary', 'other', 'prefer not to say'],
-    default: 'prefer not to say'
+    enum: ['Select your gender','male', 'female', 'non-binary', 'other', 'prefer not to say'],
+    default: 'Select your gender'
   },
   birthday: {
     type: Date,
@@ -75,19 +76,26 @@ const UserSchema = new mongoose.Schema ({
   },
   interests: {
     type: String,
-    enum: ["Category One", "Category Two", "Category Three", "Category Four", "Category Five"],
-    default: "Category One"
+    enum: ['Select an interest', 'Category One', 'Category Two', 'Category Three', 'Category Four', 'Category Five'],
+    default: 'Select an interest'
     // need to match the list to eventCategory in the Event Schema
     // need to create interests/categories list
   },
   currentCity: {
     type: String,
-    //enum: ['Stockholm', 'London', ''],
+    enum: ['Stockholm', 'London', 'Paris'],
     default: 'Stockholm'
   },
   homeCountry: {
     type: String,
-    enum: countryList.getNames()
+    enum: countryList.getNames(),
+    default: function () {
+      const defaultCountry = 'Select a country';
+      if (countryList.getNames().includes(defaultCountry)) {
+        return defaultCountry;
+      }
+      return undefined;
+    },
   },
   languages: {
     type: String
