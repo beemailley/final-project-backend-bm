@@ -56,10 +56,10 @@ const UserSchema = new mongoose.Schema ({
   },
   emailAddress: {
     type: String,
-     unique: true,
-     match: [/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/, 'Please enter a valid email address'],
-    sparse: true, // allows it to have missing or null values
-    index: true
+    unique: true,
+    match: [/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/, 'Please enter a valid email address']
+    // sparse: true, // allows it to have missing or null values
+    // index: true
     },
   memberSince: {
     type: Date,
@@ -117,19 +117,21 @@ app.get("/", (req, res) => {
 //register as a new user
 //do not need prior authorization, anyone can register
 app.post("/register", async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, emailAddress } = req.body;
   try {
     const user = await User.findOne({ username });
-    if (user) {
+    const email = await User.findOne({ emailAddress })
+    if (user || email) {
       res.status(400).json({
         success: false,
-        response: "Username already exists."
+        response: "Username or email already exists."
       })
     } else {
       const salt = bcrypt.genSaltSync();
       const newUser = await new User({
         username: username,
-        password: bcrypt.hashSync(password, salt),
+        password: bcrypt.hashSync(password, salt), 
+        emailAddress: emailAddress
       }).save();
       res.status(201).json({
         success: true,
@@ -308,24 +310,24 @@ try {
 
 
 // checking email address doesn't already exist 
-app.post('/check-email-availability', async (req, res) => {
-  const { emailAddress } = req.body;
+// app.post('/check-email-availability', async (req, res) => {
+//   const { emailAddress } = req.body;
 
-  try {
-    // Check if the email exists in the MongoDB collection
-    const user = await User.findOne({ emailAddress: emailAddress }).exec();
+//   try {
+//     // Check if the email exists in the MongoDB collection
+//     const user = await User.findOne({ emailAddress: emailAddress }).exec();
 
-    // Send the response indicating email availability
-    if (user) {
-      return res.json({ available: false }); // Email exists in the database
-    } else {
-      return res.json({ available: true }); // Email is available
-    }
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'An error occurred while checking email availability' });
-  }
-});
+//     // Send the response indicating email availability
+//     if (user) {
+//       return res.json({ available: false }); // Email exists in the database
+//     } else {
+//       return res.json({ available: true }); // Email is available
+//     }
+//   } catch (err) {
+//     console.error(err);
+//     return res.status(500).json({ error: 'An error occurred while checking email availability' });
+//   }
+// });
 
 
 
