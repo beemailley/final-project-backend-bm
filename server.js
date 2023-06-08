@@ -56,9 +56,9 @@ const UserSchema = new mongoose.Schema ({
   },
   emailAddress: {
     type: String,
-     unique: true,
+    //  unique: true,
      match: [/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/, 'Please enter a valid email address'],
-    sparse: true, // allows it to have missing or null values
+    // sparse: true, // allows it to have missing or null values
     index: true
     },
   memberSince: {
@@ -258,74 +258,79 @@ app.patch("/users/:username/update", authenticateUser);
 app.patch("/users/:username/update", async (req, res) => {
   const { username } = req.params;
   const accessToken = req.header("Authorization");
-  const authorizedUser = await User.findOne({accessToken: accessToken});
-try {
-  const user = await User.findOne({ username });
-  if (user.username === authorizedUser.username) {
-    user.firstName = req.body.firstName || user.firstName;
-    user.lastName = req.body.lastName || user.lastName;
-    user.emailAddress = req.body.emailAddress || user.emailAddress;
-    user.gender = req.body.gender || user.gender;
-    user.birthday = req.body.birthday || user.birthday;
-    user.interests = req.body.interests || user.interests;
-    user.currentCity = req.body.currentCity || user.currentCity;
-    user.homeCountry = req.body.homeCountry || user.homeCountry;
-    user.languages = req.body.languages || user.languages;
-    
-    const updatedUser = await user.save();
-    res.status(200).json({
-      success: true,
-      response: {
-        username: updatedUser.username,
-        firstName: updatedUser.firstName,
-        lastName: updatedUser.lastName, 
-        emailAddress: updatedUser.emailAddress,
-        memberSince: updatedUser.memberSince,
-        gender: updatedUser.gender,
-        birthday: updatedUser.birthday,
-        interests: updatedUser.interests,
-        currentCity: updatedUser.currentCity,
-        homeCountry: updatedUser.homeCountry,
-        languages: updatedUser.languages,
-      }, 
-      message: `Username ${updatedUser.username} updated profile successfully.`
-    })
-  } else {
-    res.status(400).json({
-      success: false,
-      message: "User not found OR you are not authorized to edit this user."
-    })
-  }
-} catch (error) {
-  console.log(error)
-  res.status(500).json({
-    success: false,
-    response: null,
-    message: "Error occurred"
-  })
-}
-})
-
-
-// checking email address doesn't already exist 
-app.post('/check-email-availability', async (req, res) => {
-  const { emailAddress } = req.body;
+  const authorizedUser = await User.findOne({ accessToken });
 
   try {
-    // Check if the email exists in the MongoDB collection
-    const user = await User.findOne({ emailAddress: emailAddress }).exec();
-
-    // Send the response indicating email availability
-    if (user) {
+    const emailExists = await User.findOne({ emailAddress: req.body.emailAddress });
+    if (emailExists) { 
       return res.json({ available: false }); // Email exists in the database
     } else {
-      return res.json({ available: true }); // Email is available
+      const user = await User.findOne({ username }); // update later
+      if (user.username === authorizedUser.username) {
+        user.firstName = req.body.firstName || user.firstName;
+        user.lastName = req.body.lastName || user.lastName;
+        user.emailAddress = req.body.emailAddress || user.emailAddress;
+        user.gender = req.body.gender || user.gender;
+        user.birthday = req.body.birthday || user.birthday;
+        user.interests = req.body.interests || user.interests;
+        user.currentCity = req.body.currentCity || user.currentCity;
+        user.homeCountry = req.body.homeCountry || user.homeCountry;
+        user.languages = req.body.languages || user.languages;
+        
+        const updatedUser = await user.save();
+        return res.status(200).json({
+          success: true,
+          response: {
+            username: updatedUser.username,
+            firstName: updatedUser.firstName,
+            lastName: updatedUser.lastName, 
+            emailAddress: updatedUser.emailAddress,
+            memberSince: updatedUser.memberSince,
+            gender: updatedUser.gender,
+            birthday: updatedUser.birthday,
+            interests: updatedUser.interests,
+            currentCity: updatedUser.currentCity,
+            homeCountry: updatedUser.homeCountry,
+            languages: updatedUser.languages,
+          }, 
+          message: `Username ${updatedUser.username} updated profile successfully.`
+        });
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "User not found OR you are not authorized to edit this user."
+        });
+      }
     }
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'An error occurred while checking email availability' });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      response: null,
+      message: "An error occurred"
+    });
   }
 });
+
+// // checking email address doesn't already exist 
+// app.post('/check-email-availability', async (req, res) => {
+//   const { emailAddress } = req.body;
+
+//   try {
+//     // Check if the email exists in the MongoDB collection
+//     const user = await User.findOne({ emailAddress: emailAddress }).exec();
+
+//     // Send the response indicating email availability
+//     if (user) {
+//       return res.json({ available: false }); // Email exists in the database
+//     } else {
+//       return res.json({ available: true }); // Email is available
+//     }
+//   } catch (err) {
+//     console.error(err);
+//     return res.status(500).json({ error: 'An error occurred while checking email availability' });
+//   }
+// });
 
 
 
