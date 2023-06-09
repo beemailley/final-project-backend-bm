@@ -124,7 +124,7 @@ app.post("/register", async (req, res) => {
     if (user || email) {
       res.status(400).json({
         success: false,
-        response: "Username or email already exists."
+        response: "Username or email already exists. Please make sure to enter an email address."
       })
     } else {
       const salt = bcrypt.genSaltSync();
@@ -169,7 +169,7 @@ app.post("/login", async (req, res) => {
   } else {
       res.status(400).json({
         success: false,
-        response: "Credentials do not match"
+        response: "Username or password is incorrect"
       });
   } 
 } catch (e) {
