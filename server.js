@@ -124,7 +124,7 @@ app.post("/register", async (req, res) => {
     if (user || email) {
       res.status(400).json({
         success: false,
-        response: "Username or email already exists. Please make sure to enter an email address."
+        response: "Username or email already exists."
       })
     } else {
       const salt = bcrypt.genSaltSync();
@@ -506,7 +506,6 @@ app.delete('/events/:eventId', async (req, res) => {
 
 //add attendees to an event
 //only authorized users may add themselves as an attendee to an event
-//started to try and prevent attendee duplication, it's just being buggy. Can try to solve later 13/6
 app.post('/events/:eventId/attendees', authenticateUser)
 app.post('/events/:eventId/attendees', async (req, res) => {
   const { eventId } = req.params
@@ -514,10 +513,10 @@ app.post('/events/:eventId/attendees', async (req, res) => {
   const authorizedUser = await User.findOne({accessToken: accessToken})
   try {
     const eventToEdit = await Event.findById(eventId)
-    // const foundAttendee = await Event.eventAttendees.findOne({attendeeName: authorizedUser.username})
+    const eventAttendeesList = eventToEdit.eventAttendees
+    const foundAttendee = eventAttendeesList.find((attendee) => attendee.attendeeName === authorizedUser.username)
     if(eventToEdit){
-      // console.log(foundAttendee)
-      // if(!foundAttendee){
+      if(!foundAttendee){
         const editEvent = await Event.updateOne(
           {_id: eventId},
           {
@@ -533,24 +532,25 @@ app.post('/events/:eventId/attendees', async (req, res) => {
         )
         res.status(200).json({
           success: true,
-          response: {message: "Attendee added"}
+          response: "Attendee added"
         })
-      // } else {
-      //   res.status(400).json({
-      //     success: false,
-      //     response: {message: "You have already joined this event."}
-      //   })
-      // }
+      } else {
+        res.status(400).json({
+          success: false,
+          response: "You have already joined this event."
+        })
+      }
     } else {
       res.status(400).json({
         success: false,
-        response: {message: "There is no such event"}
+        response: "There is no such event"
       })
     }
   } catch (error) {
     res.status(400).json({
       success: false,
-      response: {message: "Something has gone horribly wrong"}
+      response: {error},
+      message: "Something has gone horribly wrong"
     })
   }
 })
@@ -574,12 +574,12 @@ app.delete('/events/:eventId/attendees/:attendeeUserId', async (req, res) => {
       )
       res.status(200).json({
         success: true,
-        response: {message: "Attendee removed"}
+        response: "Attendee removed"
       })
     } else {
       res.status(400).json({
         success: false,
-        response: {message: "There is no event or attendee with that ID"}
+        response: "There is no event or attendee with that ID"
       })
     }
   } catch (error) {
