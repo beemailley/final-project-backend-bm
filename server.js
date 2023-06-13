@@ -308,50 +308,6 @@ try {
 }
 })
 
-
-// checking email address doesn't already exist 
-// app.post('/check-email-availability', async (req, res) => {
-//   const { emailAddress } = req.body;
-
-//   try {
-//     // Check if the email exists in the MongoDB collection
-//     const user = await User.findOne({ emailAddress: emailAddress }).exec();
-
-//     // Send the response indicating email availability
-//     if (user) {
-//       return res.json({ available: false }); // Email exists in the database
-//     } else {
-//       return res.json({ available: true }); // Email is available
-//     }
-//   } catch (err) {
-//     console.error(err);
-//     return res.status(500).json({ error: 'An error occurred while checking email availability' });
-//   }
-// });
-
-// // checking email address doesn't already exist 
-// app.post('/check-email-availability', async (req, res) => {
-//   const { emailAddress } = req.body;
-
-//   try {
-//     // Check if the email exists in the MongoDB collection
-//     const user = await User.findOne({ emailAddress: emailAddress }).exec();
-
-//     // Send the response indicating email availability
-//     if (user) {
-//       return res.json({ available: false }); // Email exists in the database
-//     } else {
-//       return res.json({ available: true }); // Email is available
-//     }
-//   } catch (err) {
-//     console.error(err);
-//     return res.status(500).json({ error: 'An error occurred while checking email availability' });
-//   }
-// });
-
-
-
-
 const AttendeeSchema = new mongoose.Schema ({ 
   attendeeName: {
     type: String
@@ -401,7 +357,7 @@ const EventSchema = new mongoose.Schema ({
   },
   eventAttendees: {
     type: [AttendeeSchema],
-    default: undefined
+    default: []
   }, 
   createdBy: {
     type: String
@@ -550,6 +506,7 @@ app.delete('/events/:eventId', async (req, res) => {
 
 //add attendees to an event
 //only authorized users may add themselves as an attendee to an event
+//started to try and prevent attendee duplication, it's just being buggy. Can try to solve later 13/6
 app.post('/events/:eventId/attendees', authenticateUser)
 app.post('/events/:eventId/attendees', async (req, res) => {
   const { eventId } = req.params
@@ -557,34 +514,43 @@ app.post('/events/:eventId/attendees', async (req, res) => {
   const authorizedUser = await User.findOne({accessToken: accessToken})
   try {
     const eventToEdit = await Event.findById(eventId)
+    // const foundAttendee = await Event.eventAttendees.findOne({attendeeName: authorizedUser.username})
     if(eventToEdit){
-      const editEvent = await Event.updateOne(
-        {_id: eventId},
-        {
-          $push: {
-            eventAttendees: {
-              $each:[{
-                attendeeName: authorizedUser.username, 
-                attendeeHomeCountry: authorizedUser.homeCountry, 
-                attendeeUserId: authorizedUser._id
-              }]
-            }
-        }}
-      )
-      res.status(200).json({
-        success: true,
-        response: {message: "Attendee added"}
-      })
+      // console.log(foundAttendee)
+      // if(!foundAttendee){
+        const editEvent = await Event.updateOne(
+          {_id: eventId},
+          {
+            $push: {
+              eventAttendees: {
+                $each:[{
+                  attendeeName: authorizedUser.username, 
+                  attendeeHomeCountry: authorizedUser.homeCountry, 
+                  attendeeUserId: authorizedUser._id
+                }]
+              }
+          }}
+        )
+        res.status(200).json({
+          success: true,
+          response: {message: "Attendee added"}
+        })
+      // } else {
+      //   res.status(400).json({
+      //     success: false,
+      //     response: {message: "You have already joined this event."}
+      //   })
+      // }
     } else {
       res.status(400).json({
         success: false,
-        response: {message: "There is no event with that ID"}
+        response: {message: "There is no such event"}
       })
     }
   } catch (error) {
     res.status(400).json({
       success: false,
-      response: {message: error}
+      response: {message: "Something has gone horribly wrong"}
     })
   }
 })
