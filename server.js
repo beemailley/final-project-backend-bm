@@ -76,8 +76,8 @@ const UserSchema = new mongoose.Schema ({
   },
   interests: {
     type: String,
-    enum: ['Select an interest', 'Category One', 'Category Two', 'Category Three', 'Category Four', 'Category Five'],
-    default: 'Select an interest'
+    enum: ["Animal Lovers", "Arts & Music", "Books", "Career", "Community", "Families", "Food & Drinks", "Games", "Health", "LGBTQ+", "Out in the City", "Parents", "Spirituality", "Sports", "Technology"],
+    default: "Community"
     // need to match the list to eventCategory in the Event Schema
     // need to create interests/categories list
   },
@@ -344,8 +344,8 @@ const EventSchema = new mongoose.Schema ({
   },
   eventCategory: {
     type: String,
-    enum: ["Category One", "Category Two", "Category Three", "Category Four", "Category Five"],
-    default: "Category One"
+    enum: ["Animal Lovers", "Arts & Music", "Books", "Career", "Community", "Families", "Food & Drinks", "Games", "Health", "LGBTQ+", "Out in the City", "Parents", "Spirituality", "Sports", "Technology"],
+    default: "Community"
     // need to come from a specific list that matches the user schema
     // need to create interests/categories list
   },
